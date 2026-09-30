@@ -1,0 +1,22 @@
+apiVersion: v1
+data:
+    github_token: ENC[AES256_GCM,data:5IDJ8IWHZ0u4yI2BJKmSH3JI/KK9OsDdUQS+kK0HC73jHgtq2hFOddOYgfP5+9ww6ivgpTDUPL8=,iv:XqjetYLMfla0DidY6Iba/oCA1CgsJ7hBUMhepsu8SyI=,tag:GZg6Pyx275L+3Jxb6TScEw==,type:str]
+kind: Secret
+metadata:
+    name: github-arc-token
+    namespace: arc-runners
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4cUVmRmlVOVM0d0JHUlJ0
+            SkVWZHlBSTIzeWl5RGZHbGNvVEp4MjRiblRNCkVGSEU5MDc3K0V2SElSWjNzNEdU
+            RCt4a3FPOFZDUnJhOFBiU0d5Z3VjekEKLS0tIDFDdjRyZTRzdWtxaVhNSWtaUHhn
+            M1Vjb091a3ozaW8xYVI2ZUpSbUV2OGMKZOmKxUqWI222o8x+PcJLQDBW/0+zB3Kw
+            rFydUmT7/aSJrYn+Ngs+8ZLHH4qjldDGNQvZHoag9QBx1D7MpsgqEw==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1n4pp5k56sghd7apr3gev9yndf0d8h960wdkv4v8a0nhfzyvw3vgslc8xal
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-09-30T13:49:11Z"
+    mac: ENC[AES256_GCM,data:+1SMgonwz4w0v+69YnaYuZEpFQjGqjLKpnpkR2MQgaA9tBsyP4nExLv6XIJMtG3i6lbFpc7Omz+IJQatuuy9WiakjqgukV+CO41Eu+PSMynA+eHEDargJ4EqLtLHj52NLxRyAtVUXAntcQYWLVe3UI9aTBZ0WyGdbFbf2daccfk=,iv:LF3voCT1jeEIhDAJwnJX/5fY9m2+6HgaruXMrvOhTVE=,tag:Y8QpnegTiiXxIAHGoRJsbw==,type:str]
+    version: 3.13.3

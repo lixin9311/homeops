@@ -1,0 +1,35 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: arc
+  namespace: arc-systems
+spec:
+  interval: 1h
+  url: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # The controller and scale-set charts must stay on the same version: pinned
+    # exactly here and in infrastructure/arc-runners/release.yaml. Bump both together.
+    semver: "0.14.2"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: arc
+  namespace: arc-systems
+spec:
+  interval: 1h
+  # The release name determines the controller ServiceAccount (arc-gha-rs-controller),
+  # which the scale set references.
+  releaseName: arc
+  chartRef:
+    kind: OCIRepository
+    name: arc
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3

@@ -1,0 +1,49 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: arc-runner-set
+  namespace: arc-runners
+spec:
+  interval: 1h
+  url: oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # Keep identical to the controller version in infrastructure/controllers/arc/release.yaml.
+    semver: "0.14.2"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: mega
+  namespace: arc-runners
+spec:
+  interval: 1h
+  releaseName: mega
+  dependsOn:
+    - name: arc
+      namespace: arc-systems
+  chartRef:
+    kind: OCIRepository
+    name: arc-runner-set
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    # REPLACE before pushing. Use a PRIVATE repo (https://github.com/OWNER/REPO) or an
+    # organization (https://github.com/OWNER) with a restricted runner group.
+    # Never a public repo: any fork PR could run code on this machine.
+    githubConfigUrl: "https://github.com/lictl/3tock-quote"
+    # Name of the Secret (key: github_token) in this namespace, from github-token.sops.yaml.
+    githubConfigSecret: github-arc-token
+    # This is the label workflows use: `runs-on: mega`
+    runnerScaleSetName: "mega"
+    minRunners: 0
+    maxRunners: 3
+    controllerServiceAccount:
+      namespace: arc-systems
+      name: arc-gha-rs-controller
