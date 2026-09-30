@@ -47,3 +47,17 @@ spec:
     controllerServiceAccount:
       namespace: arc-systems
       name: arc-gha-rs-controller
+    # Overriding the pod template: the `runner` container must define image and command.
+    template:
+      spec:
+        containers:
+          - name: runner
+            image: ghcr.io/actions/actions-runner:latest
+            command: ["/home/runner/run.sh"]
+            resources:
+              requests:
+                cpu: "2"
+                memory: 4Gi
+              limits:
+                cpu: "8"
+                memory: 16Gi
