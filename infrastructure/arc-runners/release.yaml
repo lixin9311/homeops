@@ -52,7 +52,9 @@ spec:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/actions/actions-runner:latest
+            # Built by .github/workflows/arc-runner-image.yml from images/arc-runner-solana;
+            # floating tag, rebuilt weekly. Public package, so no pull secret.
+            image: ghcr.io/lixin9311/arc-runner-solana:latest
             command: ["/home/runner/run.sh"]
             resources:
               requests:
