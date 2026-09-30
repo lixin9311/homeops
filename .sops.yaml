@@ -1,0 +1,7 @@
+# Only files named *.sops.yaml are encrypted, and only their data/stringData
+# (kustomize-controller can't decrypt a Secret's metadata, kind or apiVersion).
+# Replace the recipient with the PUBLIC key printed by `age-keygen -y <keyfile>`.
+creation_rules:
+  - path_regex: .*\.sops\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: age1n4pp5k56sghd7apr3gev9yndf0d8h960wdkv4v8a0nhfzyvw3vgslc8xal

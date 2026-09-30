@@ -1,0 +1,5 @@
+.DS_Store
+
+# age private keys must never be committed (this repo is public)
+*.agekey
+keys.txt
