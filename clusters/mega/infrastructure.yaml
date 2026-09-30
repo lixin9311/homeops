@@ -1,0 +1,18 @@
+# Cluster-level infrastructure, reconciled from ./infrastructure/controllers.
+# Add an `infra-configs` Kustomization (dependsOn: infra-controllers) later for
+# resources that need the controllers' CRDs first, such as cert-manager ClusterIssuers.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-controllers
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/controllers
+  prune: true
+  wait: true
