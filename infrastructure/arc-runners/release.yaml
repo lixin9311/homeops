@@ -43,7 +43,7 @@ spec:
     # This is the label workflows use: `runs-on: mega`
     runnerScaleSetName: "mega"
     minRunners: 0
-    maxRunners: 3
+    maxRunners: 6
     controllerServiceAccount:
       namespace: arc-systems
       name: arc-gha-rs-controller
