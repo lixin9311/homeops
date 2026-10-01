@@ -10,8 +10,9 @@ spec:
     mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
     operation: copy
   ref:
-    # Keep identical to the controller version in infrastructure/controllers/arc/release.yaml.
-    semver: "0.14.2"
+    # Keep identical to the controller version in infrastructure/controllers/arc/release.yaml
+    # (Renovate bumps both together; see renovate.json).
+    tag: "0.14.2"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

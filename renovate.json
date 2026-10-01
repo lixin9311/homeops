@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["before 7am on monday"],
+  "dependencyDashboard": true,
+  "enabledManagers": ["flux", "github-actions"],
+  "ignorePaths": ["**/*.sops.yaml"],
+  "flux": {
+    "managerFilePatterns": [
+      "/^clusters/.+\\.ya?ml$/",
+      "/^infrastructure/.+\\.ya?ml$/"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "The ARC controller and runner scale-set charts must stay on the same version, so they update together.",
+      "matchManagers": ["flux"],
+      "matchPackageNames": ["/^ghcr\\.io\\/actions\\/actions-runner-controller-charts\\//"],
+      "groupName": "actions-runner-controller"
+    }
+  ]
+}

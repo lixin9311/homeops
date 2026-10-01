@@ -11,8 +11,9 @@ spec:
     operation: copy
   ref:
     # The controller and scale-set charts must stay on the same version: pinned
-    # exactly here and in infrastructure/arc-runners/release.yaml. Bump both together.
-    semver: "0.14.2"
+    # exactly here and in infrastructure/arc-runners/release.yaml. Renovate bumps
+    # both in one grouped PR (renovate.json); by hand, bump both together.
+    tag: "0.14.2"
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
