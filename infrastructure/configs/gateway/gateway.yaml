@@ -1,5 +1,5 @@
 # Envoy Gateway runs this Gateway's proxy in envoy-gateway-system behind a LoadBalancer
-# Service, which k3s's servicelb exposes on the node's ports 80 and 443 (10.10.1.99).
+# Service, which k3s's servicelb exposes on the node's ports 80, 443 and 2222 (10.10.1.99).
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -28,3 +28,14 @@ spec:
       allowedRoutes:
         namespaces:
           from: Same
+    # Raw TCP for git over SSH, reached by the git-ssh.lucas.icu tunnel route and directly
+    # from the LAN. SSH carries no hostname, so this port serves a single TCPRoute backend.
+    # Not 22: that's the node's own sshd.
+    - name: git-ssh
+      protocol: TCP
+      port: 2222
+      allowedRoutes:
+        namespaces:
+          from: All
+        kinds:
+          - kind: TCPRoute
