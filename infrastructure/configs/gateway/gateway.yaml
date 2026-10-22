@@ -1,0 +1,30 @@
+# Envoy Gateway runs this Gateway's proxy in envoy-gateway-system behind a LoadBalancer
+# Service, which k3s's servicelb exposes on the node's ports 80 and 443 (10.10.1.99).
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: main
+  namespace: gateway
+spec:
+  gatewayClassName: envoy
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: "*.lucas.icu"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: lucas-icu-tls
+      allowedRoutes:
+        namespaces:
+          # Apps attach their HTTPRoutes from their own namespaces.
+          from: All
+    # Plain HTTP only redirects to HTTPS (https-redirect.yaml), so no app routes attach here.
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: "*.lucas.icu"
+      allowedRoutes:
+        namespaces:
+          from: Same

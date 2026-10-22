@@ -3,3 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - certificate.yaml
+  - gatewayclass.yaml
+  - gateway.yaml
+  - https-redirect.yaml

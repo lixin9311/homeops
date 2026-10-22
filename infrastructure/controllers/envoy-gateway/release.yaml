@@ -1,0 +1,39 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: envoy-gateway
+  namespace: envoy-gateway-system
+spec:
+  interval: 1h
+  url: oci://docker.io/envoyproxy/gateway-helm
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # Exact tag, bumped by Renovate PRs (renovate.json). It reads `tag`, not `semver`.
+    tag: "1.9.2"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: envoy-gateway
+  namespace: envoy-gateway-system
+spec:
+  interval: 1h
+  releaseName: envoy-gateway
+  chartRef:
+    kind: OCIRepository
+    name: envoy-gateway
+  # The Gateway API (experimental channel) and Envoy Gateway CRDs ship in the chart's
+  # crds/ directory, which Helm only creates on install; CreateReplace also updates them
+  # on upgrades.
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  # Envoy proxies for each Gateway are deployed into this namespace, behind a
+  # LoadBalancer Service (k3s's servicelb binds its ports on the node).

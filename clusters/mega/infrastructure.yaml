@@ -64,8 +64,9 @@ spec:
       name: sops-age
 ---
 # Resources built on the controllers' CRDs: the cert-manager ClusterIssuer (with its
-# SOPS-encrypted Cloudflare token) and the Gateway namespace's wildcard Certificate.
-# Nothing depends on it yet, so a slow or failing issuance can't block other Kustomizations.
+# SOPS-encrypted Cloudflare token), and the shared Gateway with its wildcard Certificate.
+# Nothing depends on it, so a slow or failing issuance can't block other Kustomizations;
+# app HTTPRoutes only need the Gateway API CRDs from infra-controllers.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -89,8 +90,8 @@ spec:
       name: sops-age
 ---
 # Logging: Alloy ships pod logs, Kubernetes events and the k3s journal to Loki
-# (30-day retention), with Grafana as the UI. Needs no CRDs or secrets, so no
-# dependsOn or decryption.
+# (30-day retention), with Grafana as the UI. Grafana's HTTPRoute needs the Gateway
+# API CRDs (dependsOn); there are no secrets, so no decryption.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -100,6 +101,8 @@ spec:
   interval: 1h
   retryInterval: 1m
   timeout: 10m
+  dependsOn:
+    - name: infra-controllers
   sourceRef:
     kind: GitRepository
     name: flux-system

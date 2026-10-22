@@ -48,6 +48,19 @@ spec:
             access: proxy
             url: http://loki.observability.svc.cluster.local:3100
             isDefault: true
+    # HTTPRoute on the shared Gateway; the chart also sets server.domain from the hostname.
+    route:
+      main:
+        enabled: true
+        hostnames:
+          - grafana.lucas.icu
+        parentRefs:
+          - name: main
+            namespace: gateway
+            sectionName: https
     grafana.ini:
+      server:
+        # Grafana builds absolute links and redirects from this.
+        root_url: https://grafana.lucas.icu
       analytics:
         reporting_enabled: false
