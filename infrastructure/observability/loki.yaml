@@ -1,0 +1,88 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: loki
+  namespace: observability
+spec:
+  interval: 1h
+  # The community chart; the grafana/helm-charts copy is now for Grafana Enterprise Logs only.
+  url: oci://ghcr.io/grafana-community/helm-charts/loki
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # Exact tag, bumped by Renovate PRs (renovate.json). It reads `tag`, not `semver`.
+    tag: "19.0.3"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: loki
+  namespace: observability
+spec:
+  interval: 1h
+  releaseName: loki
+  chartRef:
+    kind: OCIRepository
+    name: loki
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    # One process storing chunks and index on its own volume; enough for a single node.
+    deploymentMode: Monolithic
+    loki:
+      # Single tenant, so Alloy and Grafana need no X-Scope-OrgID header.
+      auth_enabled: false
+      commonConfig:
+        replication_factor: 1
+      storage:
+        type: filesystem
+      schemaConfig:
+        configs:
+          # Must predate the oldest line Alloy ships; on first start it reads the existing pod logs.
+          - from: "2026-01-01"
+            store: tsdb
+            object_store: filesystem
+            schema: v13
+            index:
+              prefix: index_
+              period: 24h
+      limits_config:
+        # Logs older than this are deleted by the compactor (retention_enabled below).
+        retention_period: 30d
+      compactor:
+        retention_enabled: true
+        delete_request_store: filesystem
+      # Powers the Patterns tab in Grafana's Logs Drilldown.
+      pattern_ingester:
+        enabled: true
+      analytics:
+        reporting_enabled: false
+    singleBinary:
+      replicas: 1
+      persistence:
+        # local-path doesn't enforce the size; retention is what bounds disk use.
+        size: 50Gi
+    # The chart's defaults are for SimpleScalable mode; validation fails unless these are 0.
+    read:
+      replicas: 0
+    write:
+      replicas: 0
+    backend:
+      replicas: 0
+    # Only useful for larger installs: the nginx gateway in front of read/write paths,
+    # the memcached caches, and the canary that the Helm test needs.
+    gateway:
+      enabled: false
+    chunksCache:
+      enabled: false
+    resultsCache:
+      enabled: false
+    lokiCanary:
+      enabled: false
+    test:
+      enabled: false

@@ -87,3 +87,22 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+---
+# Logging: Alloy ships pod logs, Kubernetes events and the k3s journal to Loki
+# (30-day retention), with Grafana as the UI. Needs no CRDs or secrets, so no
+# dependsOn or decryption.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: observability
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/observability
+  prune: true
+  wait: true
