@@ -1,0 +1,6 @@
+# Home of the Gateway and its TLS certificate. The controller (Traefik or Envoy
+# Gateway) is not chosen yet; both read the Secret from the Gateway's namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gateway

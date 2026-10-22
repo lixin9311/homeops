@@ -1,6 +1,6 @@
 # Cluster-level infrastructure, reconciled from ./infrastructure/controllers.
-# Add an `infra-configs` Kustomization (dependsOn: infra-controllers) later for
-# resources that need the controllers' CRDs first, such as cert-manager ClusterIssuers.
+# Resources that need the controllers' CRDs first, such as cert-manager
+# ClusterIssuers, live in the `infra-configs` Kustomization below.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -56,6 +56,31 @@ spec:
     kind: GitRepository
     name: flux-system
   path: ./infrastructure/cloudflared
+  prune: true
+  wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+---
+# Resources built on the controllers' CRDs: the cert-manager ClusterIssuer (with its
+# SOPS-encrypted Cloudflare token) and the Gateway namespace's wildcard Certificate.
+# Nothing depends on it yet, so a slow or failing issuance can't block other Kustomizations.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-configs
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 10m
+  dependsOn:
+    - name: infra-controllers
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/configs
   prune: true
   wait: true
   decryption:

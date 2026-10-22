@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # No `email`: it is optional, and this repo is public. Let's Encrypt no longer
+    # sends expiry notices anyway. Add one here only if you want an account contact.
+    privateKeySecretRef:
+      name: letsencrypt-account-key
+    solvers:
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              # Read from the cert-manager namespace (the ClusterIssuer's resource namespace).
+              name: cloudflare-api-token
+              key: api-token

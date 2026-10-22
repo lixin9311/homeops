@@ -1,0 +1,15 @@
+# Wildcard certificate for the Gateway's HTTPS listener. The Secret has to live in
+# the Gateway's namespace, or a listener elsewhere needs a ReferenceGrant to read it.
+# `*.lucas.icu` does not cover the apex `lucas.icu`; add it to dnsNames if needed.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: lucas-icu
+  namespace: gateway
+spec:
+  secretName: lucas-icu-tls
+  dnsNames:
+    - "*.lucas.icu"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt
