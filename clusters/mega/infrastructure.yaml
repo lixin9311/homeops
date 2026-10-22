@@ -40,3 +40,25 @@ spec:
     provider: sops
     secretRef:
       name: sops-age
+---
+# Cloudflare Tunnel connector. Own Kustomization because it carries a
+# SOPS-encrypted tunnel token; it needs no CRDs, so no dependsOn.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudflared
+  namespace: flux-system
+spec:
+  interval: 1h
+  retryInterval: 1m
+  timeout: 10m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/cloudflared
+  prune: true
+  wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
