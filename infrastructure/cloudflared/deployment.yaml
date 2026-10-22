@@ -6,7 +6,9 @@ metadata:
   name: cloudflared
   namespace: cloudflared
 spec:
-  replicas: 2
+  # One node, so a second replica adds no redundancy against node failure. The default
+  # rolling update (maxSurge 1, maxUnavailable 0) starts the new pod before stopping the old.
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: cloudflared
