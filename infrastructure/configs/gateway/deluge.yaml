@@ -1,0 +1,47 @@
+# Deluge's web UI runs on the node itself (systemd deluge-web on :8112), outside the
+# cluster. A selector-less Service with a hand-written EndpointSlice gives the HTTPRoute
+# a regular Service to point at; pods reach the host on its LAN address.
+apiVersion: v1
+kind: Service
+metadata:
+  name: deluge
+  namespace: gateway
+spec:
+  ports:
+    - name: http
+      port: 8112
+      protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: deluge
+  namespace: gateway
+  labels:
+    # Ties this slice to the Service above.
+    kubernetes.io/service-name: deluge
+addressType: IPv4
+ports:
+  # Must match the Service port's name.
+  - name: http
+    port: 8112
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 10.10.1.99
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: deluge
+  namespace: gateway
+spec:
+  parentRefs:
+    - name: main
+      sectionName: https
+  hostnames:
+    - deluge.lucas.icu
+  rules:
+    - backendRefs:
+        - name: deluge
+          port: 8112
