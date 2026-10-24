@@ -1,0 +1,38 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: metallb
+  namespace: metallb-system
+spec:
+  interval: 1h
+  url: oci://quay.io/metallb/chart/metallb
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # Exact tag, bumped by Renovate PRs (renovate.json). It reads `tag`, not `semver`.
+    tag: "0.16.1"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: metallb
+  namespace: metallb-system
+spec:
+  interval: 1h
+  releaseName: metallb
+  chartRef:
+    kind: OCIRepository
+    name: metallb
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  # Replaces k3s's servicelb, which is disabled in /etc/rancher/k3s/config.yaml on the
+  # node. Address pools live in infrastructure/configs/metallb (they need these CRDs).
+  values:
+    # Layer 2 mode only. frr-k8s is the BGP backend, so it isn't deployed.
+    frrk8s:
+      enabled: false

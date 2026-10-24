@@ -1,0 +1,14 @@
+# Settings for the main Gateway's Envoy deployment (spec.infrastructure in gateway.yaml).
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: main
+  namespace: gateway
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        annotations:
+          # Fixed address from MetalLB's pool (infrastructure/configs/metallb/pool.yaml).
+          metallb.io/loadBalancerIPs: 10.10.1.98

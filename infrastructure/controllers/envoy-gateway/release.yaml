@@ -36,4 +36,4 @@ spec:
     remediation:
       retries: 3
   # Envoy proxies for each Gateway are deployed into this namespace, behind a
-  # LoadBalancer Service (k3s's servicelb binds its ports on the node).
+  # LoadBalancer Service that MetalLB gives a LAN address.
