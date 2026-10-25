@@ -1,0 +1,24 @@
+# How the main Gateway's Envoy treats requests from clients, for every route on it.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: main
+  namespace: gateway
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: main
+  path:
+    # Envoy's default (UnescapeAndRedirect) decodes %2F in paths, which breaks URLs that carry
+    # a slash inside one path segment (Forgejo branch and package names, for example).
+    escapedSlashesAction: KeepUnchanged
+  headers:
+    earlyRequestHeaders:
+      # LAN clients reach the Gateway directly, so drop any X-Forwarded-For they send: the
+      # address Envoy then appends, the connection's peer, is the only one apps see. Before,
+      # a client's own header reached apps as "<claimed>,<peer>", which Forgejo records as the
+      # address as it is. Through the Cloudflare tunnel the peer is cloudflared's pod;
+      # CF-Connecting-IP still carries the visitor's address.
+      remove:
+        - X-Forwarded-For

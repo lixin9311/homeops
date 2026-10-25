@@ -6,5 +6,6 @@ resources:
   - gatewayclass.yaml
   - gateway.yaml
   - envoyproxy.yaml
+  - client-traffic-policy.yaml
   - https-redirect.yaml
   - deluge.yaml
