@@ -89,9 +89,10 @@ spec:
     secretRef:
       name: sops-age
 ---
-# Logging: Alloy ships pod logs, Kubernetes events and the k3s journal to Loki
-# (30-day retention), with Grafana as the UI. Grafana's HTTPRoute needs the Gateway
-# API CRDs (dependsOn); there are no secrets, so no decryption.
+# Logs and metrics: Alloy ships pod logs, Kubernetes events and the k3s journal to
+# Loki, and kube-prometheus-stack runs Prometheus, Alertmanager and node-exporter (both
+# keep 30 days), with Grafana as the UI. Grafana's HTTPRoute needs the Gateway API
+# CRDs (dependsOn), and Alertmanager's Telegram credentials are SOPS-encrypted.
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -109,3 +110,7 @@ spec:
   path: ./infrastructure/observability
   prune: true
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age

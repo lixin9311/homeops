@@ -48,6 +48,24 @@ spec:
             access: proxy
             url: http://loki.observability.svc.cluster.local:3100
             isDefault: true
+          # Both from kube-prometheus-stack.yaml.
+          - name: Prometheus
+            type: prometheus
+            uid: prometheus
+            access: proxy
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090
+          - name: Alertmanager
+            type: alertmanager
+            uid: alertmanager
+            access: proxy
+            url: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
+            jsonData:
+              implementation: prometheus
+    # Loads dashboards from ConfigMaps labelled grafana_dashboard in this namespace, such
+    # as the ones kube-prometheus-stack deploys.
+    sidecar:
+      dashboards:
+        enabled: true
     # HTTPRoute on the shared Gateway; the chart also sets server.domain from the hostname.
     route:
       main:

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: alertmanager-telegram
+    namespace: observability
+stringData:
+    bot-token: ENC[AES256_GCM,data:eLz343JXl65eDYeUie8jWhPr+x9fzxkVSlQgdZvejoqDGdAd6mCJ+nR3PeDa,iv:MjaP9k/Y/1vXhPuMbrRLa5ftnZg3MltKpksreb0QeXE=,tag:vVdajav95tCZRuZutWYNwA==,type:str]
+    chat-id: ENC[AES256_GCM,data:u6RCBoUGCa/I,iv:YCdvvFDvPbBWHaoOQcMntKH/Kbh/2yzDxU66p9uFP3I=,tag:XCa38XRIshtB+3kRGG/JTw==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB4cEIyM1FQN2h4WUVHTUNK
+            Z2I4ZU9NQXowUDQzWmRwb25KUExoZ21ZaEVFCklKaGg1OUJSRHFZMjV1NlJrZk85
+            ZTA2MjExUWExMWp6aURXWVQrWDlBYmsKLS0tIHBvR1NZcTBnOHhSY2JKR0RtdVk5
+            QXNCUERpQXl2VlhQQTZ4NURXaUFVRWsKB2mD1sZBGfFNgN6nU0xOCC7HsM1SmMGZ
+            AReOt4G/F4T8zFcWXrmaZL84qyFmU0UbL3R62udNxHKTmGrmTb476g==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1n4pp5k56sghd7apr3gev9yndf0d8h960wdkv4v8a0nhfzyvw3vgslc8xal
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-10-26T05:53:17Z"
+    mac: ENC[AES256_GCM,data:UCwxrYZBMN/D4YADT+hV5hy3A2WHGwfLGEivRkx0pM7zjsoNBU5tAsRwC0d48TD7FkGOvN4VKG7VhL/tsm86cece2Q5N0AQarvvkrZteeVZE7zLTedBhrk9DtzT3/PSmVEswMlGSX3o7wXNlGvfgpRt/1PiLLyq639oxIGXhZ3M=,iv:cN+BbSR8/Wi53/7yAAhkI/W4b/qmyxldkzwaNqgVbxU=,tag:06mhtZJPSOXEXQ5n/XcZTg==,type:str]
+    version: 3.13.3

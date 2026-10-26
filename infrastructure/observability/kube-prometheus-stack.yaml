@@ -1,0 +1,121 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kube-prometheus-stack
+  namespace: observability
+spec:
+  interval: 1h
+  url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+  layerSelector:
+    mediaType: "application/vnd.cncf.helm.chart.content.v1.tar+gzip"
+    operation: copy
+  ref:
+    # Exact tag, bumped by Renovate PRs (renovate.json). It reads `tag`, not `semver`.
+    tag: "92.13.1"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  namespace: observability
+spec:
+  interval: 1h
+  releaseName: kube-prometheus-stack
+  chartRef:
+    kind: OCIRepository
+    name: kube-prometheus-stack
+  # The Prometheus Operator CRDs ship in the chart's crds/ directory, which Helm only
+  # creates on install; CreateReplace also updates them on upgrades.
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  # Prometheus Operator with Prometheus, Alertmanager, node-exporter (the node's own
+  # CPU, memory, disks and network) and kube-state-metrics, plus the default alert rules
+  # and dashboards.
+  values:
+    # k3s runs the controller manager, scheduler and kube-proxy inside its own process,
+    # with their metrics on 127.0.0.1 only, and keeps state in SQLite rather than etcd.
+    # Their targets and alerts would always be down, so they're left out.
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeProxy:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    defaultRules:
+      rules:
+        etcd: false
+        kubeControllerManager: false
+        kubeProxy: false
+        kubeSchedulerAlerting: false
+        kubeSchedulerRecording: false
+    # Linux nodes only, so skip the AIX and macOS node dashboards and rules.
+    nodeExporter:
+      operatingSystems:
+        aix:
+          enabled: false
+        darwin:
+          enabled: false
+    # Grafana is the existing release (grafana.yaml). Only the dashboards are deployed,
+    # as ConfigMaps labelled grafana_dashboard that its sidecar loads.
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+    prometheus:
+      prometheusSpec:
+        retention: 30d
+        # local-path doesn't enforce the volume size, so cap the data here.
+        retentionSize: 45GB
+        # Pick up ServiceMonitors, PodMonitors and rules from any release, not just this one.
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        scrapeConfigSelectorNilUsesHelmValues: false
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 50Gi
+    # Alerts go to Telegram. The bot token and chat ID come from the SOPS-encrypted
+    # alertmanager-telegram Secret (alertmanager-telegram.sops.yaml), which the operator
+    # mounts at /etc/alertmanager/secrets/<secret>/<key>. The chart's grouping and
+    # inhibit rules are kept.
+    alertmanager:
+      config:
+        route:
+          receiver: telegram
+          routes:
+            # Both fire by design: Watchdog all the time (it proves the pipeline works),
+            # InfoInhibitor only to suppress info alerts. Neither is worth a message.
+            - matchers:
+                - alertname = "Watchdog"
+              receiver: "null"
+            - matchers:
+                - alertname = "InfoInhibitor"
+              receiver: "null"
+        receivers:
+          - name: "null"
+          - name: telegram
+            telegram_configs:
+              - bot_token_file: /etc/alertmanager/secrets/alertmanager-telegram/bot-token
+                chat_id_file: /etc/alertmanager/secrets/alertmanager-telegram/chat-id
+      alertmanagerSpec:
+        secrets:
+          - alertmanager-telegram
+        storage:
+          volumeClaimTemplate:
+            spec:
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 1Gi

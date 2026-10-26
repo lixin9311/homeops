@@ -5,3 +5,6 @@ resources:
   - loki.yaml
   - alloy.yaml
   - grafana.yaml
+  # Created with sops (Telegram bot token and chat ID); the build fails until this file exists.
+  - alertmanager-telegram.sops.yaml
+  - kube-prometheus-stack.yaml
