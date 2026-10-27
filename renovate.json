@@ -4,13 +4,16 @@
   "timezone": "Asia/Tokyo",
   "schedule": ["before 7am on monday"],
   "dependencyDashboard": true,
-  "enabledManagers": ["flux", "github-actions"],
+  "enabledManagers": ["flux", "github-actions", "kubernetes"],
   "ignorePaths": ["**/*.sops.yaml"],
   "flux": {
     "managerFilePatterns": [
       "/^clusters/.+\\.ya?ml$/",
       "/^infrastructure/.+\\.ya?ml$/"
     ]
+  },
+  "kubernetes": {
+    "managerFilePatterns": ["/^infrastructure/cloudflared/deployment\\.yaml$/"]
   },
   "packageRules": [
     {
